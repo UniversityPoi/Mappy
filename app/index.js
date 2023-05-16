@@ -1,23 +1,26 @@
 import { useState } from 'react';
 import { Text, View, ScrollView, SafeAreaView, StatusBar } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import styles from '../styles/index.style';
+
 import icons from '../constants/icons';
+import styles from '../styles/index.style';
+import mainStyles from '../styles/main.style';
 
 import Map from '../components/main/map/Map';
 import HeaderButton from '../components/header/HeaderButton';
+
+
 
 const Home = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={ styles.safeArea1 }>
+    <SafeAreaView style={mainStyles.safeArea}>
       <StatusBar hidden={false}></StatusBar>
       <Stack.Screen
         options={{
           headerTitleAlign: "center",
-          
-          headerStyle: styles.stackScreenHeader,
+          headerStyle: mainStyles.stackScreenHeader,
           headerLeft: () => (
             <View style={{ flexDirection: 'row' }}>
               <HeaderButton icon={icons.favorite}/>
