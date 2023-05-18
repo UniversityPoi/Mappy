@@ -1,7 +1,9 @@
-import { View, Text, Modal, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/user/userActions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFetch, loginUserOptions } from '../../../hooks/useFetch';
 
 import styles from './login.style';
 import mainStyles from '../../../styles/main.style';
@@ -10,18 +12,46 @@ import mainStyles from '../../../styles/main.style';
 
 export default function Login() {
   const [visible, setVisible] = useState(false);
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
 
   const dispatch = useDispatch();
 
-  const login = () => {
-    dispatch(setUser({ username: username, email: email, token: password }));
-    setVisible(false);
+
+  const login = () => { 
+    // Fetching login user
+    useFetch(loginUserOptions(email, password))
+    .then(response => {
+      if (response.error) {
+        displayMessage(JSON.stringify(response.error.message));
+      } else {
+        displayMessage(JSON.stringify(response.data.message));
+        if (response.status == 200) {
+          displayMessage(JSON.stringify(response.data.message));
+          storeUser({ username: '', email: email, password: password });
+          setVisible(false);
+        }
+      }
+    });
   }
 
+  const storeUser = user => {
+    AsyncStorage.setItem('user', JSON.stringify(user))
+      .then(() => {
+        dispatch(setUser(user));
+        setVisible(false);
+      })
+      .catch(error => {
+        displayMessage(error);
+      });
+  }
+
+  const displayMessage = message => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
+  }
+
+
+  
   return (
     <View>
 
@@ -35,8 +65,6 @@ export default function Login() {
         transparent={true}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-
-            {error ? (<Text style={mainStyles.warningText}>{error}</Text>) : null}
 
             <Text style={mainStyles.text}>Email</Text>
             <TextInput style={mainStyles.inputText}

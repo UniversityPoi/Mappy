@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { Text, View, ScrollView, SafeAreaView, StatusBar } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/user/userActions";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ToastAndroid } from "react-native";
+import { useEffect } from "react";
 
 import icons from '../constants/icons';
 import styles from '../styles/index.style';
@@ -13,6 +18,16 @@ import HeaderButton from '../components/header/HeaderButton';
 
 const Home = () => {
   const router = useRouter();
+  const dispatch= useDispatch();
+
+  useEffect(() => {
+    AsyncStorage.getItem('user')
+      .then(user => {
+        if (user !== null) {
+          dispatch(setUser(JSON.parse(user)));
+        }
+      });
+  }, [])
 
   return (
     <SafeAreaView style={mainStyles.safeArea}>
@@ -27,7 +42,9 @@ const Home = () => {
               <HeaderButton icon={icons.marker}/>
             </View>
           ),
-          headerRight: () => <HeaderButton icon={icons.menu} handlePress={() => {router.push("/settings-menu/settings-menu")}}/>,
+          headerRight: () => 
+            <HeaderButton icon={icons.menu} 
+              handlePress={() => {router.push("/settings-menu/settings-menu")}}/>,
           headerTitle:""
         }}/>
     </SafeAreaView>

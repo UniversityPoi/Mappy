@@ -1,7 +1,6 @@
-import { View, Text, Modal, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { setUser } from '../../../redux/user/userActions';
+import { useFetch, registerUserOptions } from '../../../hooks/useFetch';
 
 import styles from './register.style';
 import mainStyles from '../../../styles/main.style';
@@ -19,19 +18,31 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState(null);
-
-  const dispatch = useDispatch();
 
   const register = () => {
-    if (!usernameRegex.test(username)) setError('Invalid username!');
-    else if (!emailRegex.test(email)) setError('Invalid email!');
-    else if (password !== confirmPassword) setError('Passwords do not match!');
-    else if (!passwordRegex.test(password)) setError('Password must contain min 8 chars, lower, upper and digit!');
+    if (!usernameRegex.test(username)) displayMessage('Invalid username!');
+    else if (!emailRegex.test(email)) displayMessage('Invalid email!');
+    else if (password !== confirmPassword) displayMessage('Passwords do not match!');
+    else if (!passwordRegex.test(password)) displayMessage('Password must contain mininum of 8 chars, lower, upper and digit!');
     else {
-      dispatch(setUser({ username: username, email: email, token: password }));
-      setVisible(false);
+      // Fetching register user
+      useFetch(registerUserOptions(
+        username, email, password, confirmPassword
+      )).then(response => {
+        if (response.error != null) {
+          displayMessage(JSON.stringify(response.error.message));
+        } else {
+          displayMessage(JSON.stringify(response.data.message));
+          if (response.status == 200) {
+            setVisible(false);
+          }
+        }
+      });
     }
+  }
+
+  const displayMessage = message => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
   }
 
   return (
@@ -47,8 +58,6 @@ export default function Register() {
         transparent={true}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-
-            {error ? (<Text style={mainStyles.warningText}>{error}</Text>) : null}
 
             <Text style={mainStyles.text}>Username</Text>
             <TextInput style={mainStyles.inputText}
