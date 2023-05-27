@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import * as Location from 'expo-location';
 import Mapbox from '@rnmapbox/maps';
 import Constants from "expo-constants";
@@ -13,11 +13,23 @@ Mapbox.setAccessToken(Constants?.expoConfig?.extra?.MAPBOX_PUBLIC_KEY);
 const UPDATE_DISTANCE = 5;
 
 
-const Map = () => {
+const Map = forwardRef((props, ref) => {
   const [isPermissionGranted, setPermissionGranted] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({ coords: { latitude: 0, longitude: 0 } });
-  const [userCamera, setUserCamera] = useState(<Mapbox.Camera followUserLocation followZoomLevel={15}/>);
+  const [userCamera, setUserCamera] = useState([<Mapbox.Camera key='camera' followUserLocation followZoomLevel={15}/>]);
   
+  useImperativeHandle(ref, () => ({
+    centerCamera() {
+      setUserCamera(prev=> 
+        [...prev.slice(0, -1), 
+          <Mapbox.Camera 
+            key={Math.random().toString(36).substring(7)} 
+            followUserLocation 
+            followZoomLevel={15}
+          />
+        ]); 
+    }
+  }));
   
   useEffect(() => {
     Location.requestForegroundPermissionsAsync()
@@ -31,7 +43,7 @@ const Map = () => {
 
 
   const userLocationOnUpdate = (location) => {
-    console.log(location);
+    //console.log(location);
   }
 
 
@@ -47,6 +59,6 @@ const Map = () => {
       }
     </View>
   );
-}
+});
 
 export default Map;

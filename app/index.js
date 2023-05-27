@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import { Text, View, ScrollView, SafeAreaView, StatusBar } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/user/userActions";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ToastAndroid } from "react-native";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import icons from '../constants/icons';
 import styles from '../styles/index.style';
@@ -17,6 +16,8 @@ import HeaderButton from '../components/header/HeaderButton';
 
 
 const Home = () => {
+  const mapRef = useRef();
+
   const router = useRouter();
   const dispatch= useDispatch();
 
@@ -39,16 +40,15 @@ const Home = () => {
           headerLeft: () => (
             <View style={{ flexDirection: 'row' }}>
               <HeaderButton icon={icons.favorite}/>
-              <HeaderButton icon={icons.marker}/>
+              <HeaderButton icon={icons.marker} handlePress={() => mapRef.current.centerCamera()}/>
             </View>
           ),
           headerRight: () => 
-            <HeaderButton icon={icons.menu} 
-              handlePress={() => {router.push("/settings-menu/settings-menu")}}/>,
+            <HeaderButton icon={icons.menu} handlePress={() => {router.push("/settings-menu/settings-menu")}}/>,
           headerTitle:""
         }}/>
 
-        <Map/>
+        <Map ref={mapRef}/>
     </SafeAreaView>
   );
 }
