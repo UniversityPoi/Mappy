@@ -47,6 +47,8 @@ const Home = () => {
               handlePress={() => {router.push("/settings-menu/settings-menu")}}/>,
           headerTitle:""
         }}/>
+
+        <Map/>
     </SafeAreaView>
   );
 }

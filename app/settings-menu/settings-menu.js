@@ -39,7 +39,7 @@ export default function SettingsMenu() {
 
       {user ? (
         <>
-          <Text style={mainStyles.text}>Hello {user.email}</Text>
+          <Text style={mainStyles.text}>Hello {user.username}</Text>
           <TouchableOpacity style={mainStyles.button} onPress={logout}>
             <Text style={mainStyles.buttonText}>Logout</Text>
           </TouchableOpacity>

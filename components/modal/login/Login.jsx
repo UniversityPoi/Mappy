@@ -27,8 +27,7 @@ export default function Login() {
       } else {
         displayMessage(JSON.stringify(response.data.message));
         if (response.status == 200) {
-          displayMessage(JSON.stringify(response.data.message));
-          storeUser({ username: '', email: email, password: password });
+          storeUser(response.data.user);
           setVisible(false);
         }
       }

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = 'https://mappy-test-server.azurewebsites.net';
+const API_URL = 'https://mappy-server.azurewebsites.net';
 
 export const useFetch = async (options) => {
   let data = null;
