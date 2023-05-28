@@ -39,8 +39,8 @@ const Home = () => {
           headerStyle: mainStyles.stackScreenHeader,
           headerLeft: () => (
             <View style={{ flexDirection: 'row' }}>
-              <HeaderButton icon={icons.favorite}/>
-              <HeaderButton icon={icons.marker} handlePress={() => mapRef.current.centerCamera()}/>
+              <HeaderButton icon={icons.favorite} handlePress={() => mapRef.current._setNewFavorite()}/>
+              <HeaderButton icon={icons.marker} handlePress={() => mapRef.current._centerCamera()}/>
             </View>
           ),
           headerRight: () => 
