@@ -9,10 +9,11 @@ export const useFetch = async (options) => {
 
   try {
     const response = await axios.request(options);
+    
     status = response.status;
     data = response.data;
   } catch (err) {
-    error = err;
+    error = err.response.data;
   }
 
   return { data, error, status };
@@ -39,5 +40,22 @@ export const loginUserOptions = (email, password) => {
       email: email,
       password: password,
     }
+  }
+}
+
+export const getFavoriteLocationsOptions = (token) => {
+  return {
+    method: 'GET',
+    url: `${API_URL}/favorite-location`,
+    headers: { 'Authorization': 'Bearer ' + token }
+  }
+}
+
+export const addFavoriteLocationsOptions = (marker, token) => {
+  return {
+    method: 'POST',
+    url: `${API_URL}/favorite-location`,
+    headers: { 'Authorization': 'Bearer ' + token },
+    data: marker
   }
 }

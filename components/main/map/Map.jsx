@@ -1,5 +1,9 @@
-import { Text, View } from 'react-native';
+import { Text, View, ToastAndroid } from 'react-native';
 import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useFetch, addFavoriteLocationsOptions, getFavoriteLocationsOptions } from '../../../hooks/useFetch';
+import { setLocation } from "../../../redux/location/locationActions";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import Mapbox from '@rnmapbox/maps';
 import Constants from "expo-constants";
@@ -21,7 +25,13 @@ const Map = forwardRef((props, ref) => {
   const [newFavoriteMarker, setNewFavoriteMarker] = useState(null);
   const [newFavoriteMarkerLocation, setNewFavoriteMarkerLocation] = useState(null);
   const [shouldShowFavoriteLocationModal, setShouldShowFavoriteLocationModal] = useState(false);
+
+  const dispatch= useDispatch();
+
+  const { user } = useSelector(state => state.userReducer);
+  const { favoriteLocations } = useSelector(state => state.locationReducer);
   
+
   
   useImperativeHandle(ref, () => ({
     _centerCamera() { centerCamera() },
@@ -74,10 +84,40 @@ const Map = forwardRef((props, ref) => {
     setCurrentLocation(location.coords);
   }
 
-  const onNewFavoriteLocationConfirm = (value) => {
+  const onNewFavoriteLocationConfirm = (markerName) => {
+    var newMarker = { 
+      name: markerName,
+      coordinates: {
+        latitude: newFavoriteMarkerLocation[0],
+        longitude: newFavoriteMarkerLocation[1]
+      }
+    };
     
+    useFetch(addFavoriteLocationsOptions(newMarker, user.token))
+      .then(response => {
+        if (response.error) {
+          displayMessage(JSON.stringify(response.error.message));
+        } else {
+          if (response.status == 200) {
+            displayMessage(`Added ${markerName}!`);
+            fetchFavoriteLocations(user.token);
+          }
+        }
+      });
 
     onNewFavoriteLocationClose();
+  }
+
+  const fetchFavoriteLocations = (token) => {
+    useFetch(getFavoriteLocationsOptions(token))
+      .then(response => {
+        if (response.status == 200) {
+          AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
+            .then(() => {
+              dispatch(setLocation(response.data));
+            });
+        }
+      })
   }
 
   const onNewFavoriteLocationClose = () => {
@@ -93,6 +133,10 @@ const Map = forwardRef((props, ref) => {
     setNewFavoriteMarkerLocation(value.geometry.coordinates);
   }
 
+  const displayMessage = message => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
+  }
+
 
   return (
     <View style={styles.mapContainer}>
@@ -101,12 +145,26 @@ const Map = forwardRef((props, ref) => {
           <Mapbox.UserLocation onUpdate={userLocationOnUpdate} minDisplacement={UPDATE_DISTANCE} visible animated/>
           {userCamera}
           {newFavoriteMarker}
+
+          {
+            favoriteLocations.map((marker, _) => (
+              <Mapbox.PointAnnotation
+                key={marker.id}
+                id={marker.id}
+                coordinate={[marker.latitude, marker.longitude]}>
+                  <Marker name={marker.name}/>
+              </Mapbox.PointAnnotation>
+            ))
+          }
+
         </Mapbox.MapView>
+
         <NewFavoriteLocation 
           visible={shouldShowFavoriteLocationModal}
           onConfirm={onNewFavoriteLocationConfirm}
           onCancel={onNewFavoriteLocationClose}
           onHide={onNewFavoriteLocationHide}/>
+
         </> : <Text>Please allow Location Permission...</Text>
       }
     </View>

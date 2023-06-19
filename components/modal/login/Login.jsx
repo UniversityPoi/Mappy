@@ -23,11 +23,21 @@ export default function Login() {
     useFetch(loginUserOptions(email, password))
     .then(response => {
       if (response.error) {
-        displayMessage(JSON.stringify(response.error.message));
+        var errors = response.error.errors;
+
+        if (errors){
+          if (errors.Email) displayMessage(JSON.stringify(errors.Email[0]));
+          else if (errors.Password) displayMessage(JSON.stringify(errors.Password[0]));
+        }
+        else displayMessage(JSON.stringify(response.error.message));
+
       } else {
         displayMessage(JSON.stringify(response.data.message));
         if (response.status == 200) {
-          storeUser(response.data.user);
+          var user = response.data.user;
+          user.token = response.data.token;
+
+          storeUser(user);
           setVisible(false);
         }
       }

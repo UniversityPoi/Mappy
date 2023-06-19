@@ -2,9 +2,12 @@ import { Text, View, ScrollView, SafeAreaView, StatusBar } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/user/userActions";
+import { setLocation } from "../redux/location/locationActions";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ToastAndroid } from "react-native";
 import { useEffect, useRef } from "react";
+
+import { useFetch, getFavoriteLocationsOptions } from '../hooks/useFetch';
 
 import icons from '../constants/icons';
 import styles from '../styles/index.style';
@@ -25,10 +28,27 @@ const Home = () => {
     AsyncStorage.getItem('user')
       .then(user => {
         if (user !== null) {
-          dispatch(setUser(JSON.parse(user)));
+          var userObj = JSON.parse(user);
+
+          dispatch(setUser(userObj));
+          fetchFavoriteLocations(userObj.token);
         }
       });
   }, [])
+
+
+  const fetchFavoriteLocations = (token) => {
+    useFetch(getFavoriteLocationsOptions(token))
+      .then(response => {
+        if (response.status == 200) {
+          AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
+            .then(() => {
+              dispatch(setLocation(response.data));
+            });
+        }
+      })
+  }
+
 
   return (
     <SafeAreaView style={mainStyles.safeArea}>
