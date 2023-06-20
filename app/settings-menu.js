@@ -2,14 +2,16 @@ import { Text, View, SafeAreaView, StatusBar, TextInput, TouchableOpacity, Toast
 import { useState } from 'react';
 import { Stack } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { setUser } from '../../redux/user/userActions';
+import { setUser } from "../redux/user/userActions";
+import { setLocation } from '../redux/location/locationActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import styles from "../../styles/settings-menu.style";
-import mainStyles from '../../styles/main.style';
+import styles from "../styles/settings-menu.style";
+import mainStyles from '../styles/main.style';
 
-import Register from '../../components/modal/register/Register';
-import Login from '../../components/modal/login/Login';
+import Register from '../components/modal/register/Register';
+import Login from '../components/modal/login/Login';
+import FavoriteLocationList from '../components/settings/FavoriteLocationList';
 
 
 
@@ -23,8 +25,18 @@ export default function SettingsMenu() {
         dispatch(setUser(null));
       })
       .catch(error => {
-        ToastAndroid.showWithGravity(error, ToastAndroid.LONG, ToastAndroid.TOP);
-      })
+        ToastAndroid.showWithGravity(JSON.stringify(error), ToastAndroid.LONG, ToastAndroid.TOP);
+        console.log(error)
+      });
+    
+    AsyncStorage.removeItem('favoriteLocations')
+    .then(() => {
+      dispatch(setLocation([]));
+    })
+    .catch(error => {
+      ToastAndroid.showWithGravity(JSON.stringify(error), ToastAndroid.LONG, ToastAndroid.TOP);
+      console.log(error)
+    });
   }
 
   return (
@@ -43,6 +55,7 @@ export default function SettingsMenu() {
           <TouchableOpacity style={mainStyles.button} onPress={logout}>
             <Text style={mainStyles.buttonText}>Logout</Text>
           </TouchableOpacity>
+          <FavoriteLocationList/>
         </>
       ) : (
         <>

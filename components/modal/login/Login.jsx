@@ -2,8 +2,9 @@ import { View, Text, Modal, TouchableOpacity, TextInput, ToastAndroid } from 're
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/user/userActions';
+import { setLocation } from "../../../redux/location/locationActions";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFetch, loginUserOptions } from '../../../hooks/useFetch';
+import { useFetch, loginUserOptions, getFavoriteLocationsOptions } from '../../../hooks/useFetch';
 
 import styles from './login.style';
 import mainStyles from '../../../styles/main.style';
@@ -38,6 +39,7 @@ export default function Login() {
           user.token = response.data.token;
 
           storeUser(user);
+          fetchFavoriteLocations(user.token);
           setVisible(false);
         }
       }
@@ -54,6 +56,20 @@ export default function Login() {
         displayMessage(error);
       });
   }
+
+
+  const fetchFavoriteLocations = (token) => {
+    useFetch(getFavoriteLocationsOptions(token))
+      .then(response => {
+        if (response.status == 200) {
+          AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
+            .then(() => {
+              dispatch(setLocation(response.data));
+            });
+        }
+      })
+  }
+
 
   const displayMessage = message => {
     ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);

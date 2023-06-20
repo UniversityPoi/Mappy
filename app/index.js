@@ -14,7 +14,7 @@ import styles from '../styles/index.style';
 import mainStyles from '../styles/main.style';
 
 import Map from '../components/main/map/Map';
-import HeaderButton from '../components/header/HeaderButton';
+import ImageButton from '../components/buttons/ImageButton';
 
 
 
@@ -59,12 +59,12 @@ const Home = () => {
           headerStyle: mainStyles.stackScreenHeader,
           headerLeft: () => (
             <View style={{ flexDirection: 'row' }}>
-              <HeaderButton icon={icons.favorite} handlePress={() => mapRef.current._setNewFavorite()}/>
-              <HeaderButton icon={icons.marker} handlePress={() => mapRef.current._centerCamera()}/>
+              <ImageButton icon={icons.favorite} handlePress={() => mapRef.current._setNewFavorite()}/>
+              <ImageButton icon={icons.marker} handlePress={() => mapRef.current._centerCamera()}/>
             </View>
           ),
           headerRight: () => 
-            <HeaderButton icon={icons.menu} handlePress={() => {router.push("/settings-menu/settings-menu")}}/>,
+            <ImageButton icon={icons.menu} handlePress={() => {router.push("./settings-menu")}}/>,
           headerTitle:""
         }}/>
 
