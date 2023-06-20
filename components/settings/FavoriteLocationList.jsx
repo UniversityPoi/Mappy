@@ -1,13 +1,32 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useSelector } from 'react-redux';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
+import Mapbox from '@rnmapbox/maps';
+import { useRouter } from 'expo-router';
+import ImageButton from '../buttons/ImageButton';
+import { setCamera } from '../../redux/camera/cameraAction';
 
 import mainStyles from '../../styles/main.style';
 import icons from '../../constants/icons';
-import ImageButton from '../buttons/ImageButton';
+import styles from './favorite-location-list.style';
+
+
 
 const FavoriteLocationList = () => {
   const { favoriteLocations } = useSelector(state => state.locationReducer);
+  const dispatch= useDispatch();
+  const router = useRouter();
+
+  
+
+  const focusLocation = (location) => {
+    dispatch(setCamera([<Mapbox.Camera 
+      key={location.id} 
+      centerCoordinate={[location.latitude, location.longitude]}
+    />]));
+
+    router.back();
+  }
 
   const deleteFavoriteLocation = (id) => {
     console.log(id);
@@ -22,7 +41,7 @@ const FavoriteLocationList = () => {
             <View style={styles.textContainer}>
               <Text style={styles.text}>{location.name}</Text>
             </View>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => { focusLocation(location) }}>
               <Text style={styles.buttonText}>View</Text>
             </TouchableOpacity>
             <ImageButton icon={icons.trash} handlePress={deleteFavoriteLocation} data={location.id}/>
@@ -32,50 +51,5 @@ const FavoriteLocationList = () => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20
-  },
-  itemContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  textContainer: {
-    flex: 1,
-    marginRight: 16,
-  },
-  text: {
-    color: '#FF5A5F',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 20,
-  },
-  button: {
-    backgroundColor: '#FF5A5F',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    shadowColor: '#000000',
-    shadowOpacity: 0.4,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    marginLeft: '10%',
-    marginRight: '10%',
-  },
-});
 
 export default FavoriteLocationList;

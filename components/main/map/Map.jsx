@@ -8,7 +8,7 @@ import * as Location from 'expo-location';
 import Mapbox from '@rnmapbox/maps';
 import Constants from "expo-constants";
 import NewFavoriteLocation from '../../modal/new-favorite-location/NewFavoriteLocation';
-import Marker from './Marker';
+import Marker from '../marker/Marker';
 
 import styles from './map.style';
 
@@ -30,6 +30,7 @@ const Map = forwardRef((props, ref) => {
 
   const { user } = useSelector(state => state.userReducer);
   const { favoriteLocations } = useSelector(state => state.locationReducer);
+  const { camera } = useSelector(state => state.cameraReducer);
   
 
   
@@ -47,8 +48,7 @@ const Map = forwardRef((props, ref) => {
       .catch(err => {
         console.log(err);
       });
-  },[])
-
+  },[]);
 
   const centerCamera = () => {
     setUserCamera(prev=> 
@@ -144,6 +144,7 @@ const Map = forwardRef((props, ref) => {
         <Mapbox.MapView style={styles.map} scaleBarEnabled={false} compassEnabled>
           <Mapbox.UserLocation onUpdate={userLocationOnUpdate} minDisplacement={UPDATE_DISTANCE} visible animated/>
           {userCamera}
+          {camera}
           {newFavoriteMarker}
 
           {

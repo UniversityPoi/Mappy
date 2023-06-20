@@ -1,6 +1,7 @@
 import { View, Image, Text } from 'react-native';
 
 import icons from '../../../constants/icons';
+import styles from './marker.style';
 
 const Marker = ({ name = "New Location" }) => {
   const markerSize = 100 + name.length * 2;
@@ -17,32 +18,5 @@ const Marker = ({ name = "New Location" }) => {
     </View>
   );
 };
-
-const styles = {
-  markerContainer: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  markerImage: {
-    width: 45,
-    height: 45,
-    zIndex: 1,
-  },
-  textContainer: {
-    position: 'absolute',
-    top: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    zIndex: 2,
-  },
-  text: {
-    color: 'white',
-    fontSize: 12,
-  },
-};
-
 
 export default Marker;
