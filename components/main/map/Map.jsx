@@ -1,7 +1,7 @@
 import { Text, View, ToastAndroid } from 'react-native';
 import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useFetch, addFavoriteLocationsOptions, getFavoriteLocationsOptions } from '../../../hooks/useFetch';
+import { useFetch, addFavoriteLocationsOptions, getFavoriteLocationsOptions, addLocation } from '../../../hooks/useFetch';
 import { setLocation } from "../../../redux/location/locationActions";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
@@ -81,6 +81,11 @@ const Map = forwardRef((props, ref) => {
   }
 
   const userLocationOnUpdate = (location) => {
+    useFetch(addLocation({ 
+      longitude: location.coords.longitude,
+      latitude: location.coords.latitude  
+    }, user.token));
+    
     setCurrentLocation(location.coords);
   }
 

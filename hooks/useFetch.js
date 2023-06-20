@@ -67,3 +67,12 @@ export const deleteFavoriteLocationOptions = (id, token) => {
     headers: { 'Authorization': 'Bearer ' + token }
   }
 }
+
+export const addLocation = (coordinates, token) => {
+  return {
+    method: 'POST',
+    url: `${API_URL}/location`,
+    headers: { 'Authorization': 'Bearer ' + token },
+    data: coordinates
+  }
+}
