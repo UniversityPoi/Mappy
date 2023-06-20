@@ -85,6 +85,11 @@ const Map = forwardRef((props, ref) => {
   }
 
   const onNewFavoriteLocationConfirm = (markerName) => {
+    if (markerName.length < 3 || markerName.length > 20) {
+      displayMessage("Location name must be between 3 and 20 characters!");
+      return;
+    }
+
     var newMarker = { 
       name: markerName,
       coordinates: {

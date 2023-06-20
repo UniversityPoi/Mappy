@@ -51,11 +51,19 @@ export const getFavoriteLocationsOptions = (token) => {
   }
 }
 
-export const addFavoriteLocationsOptions = (marker, token) => {
+export const addFavoriteLocationsOptions = (location, token) => {
   return {
     method: 'POST',
     url: `${API_URL}/favorite-location`,
     headers: { 'Authorization': 'Bearer ' + token },
-    data: marker
+    data: location
+  }
+}
+
+export const deleteFavoriteLocationOptions = (id, token) => {
+  return {
+    method: 'DELETE',
+    url: `${API_URL}/favorite-location/${id}`,
+    headers: { 'Authorization': 'Bearer ' + token }
   }
 }

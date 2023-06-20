@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import Mapbox from '@rnmapbox/maps';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import ImageButton from '../buttons/ImageButton';
 import { setCamera } from '../../redux/camera/cameraAction';
+import { setLocation } from '../../redux/location/locationActions';
+import { useFetch, deleteFavoriteLocationOptions, getFavoriteLocationsOptions } from '../../hooks/useFetch';
 
 import mainStyles from '../../styles/main.style';
 import icons from '../../constants/icons';
@@ -14,6 +17,7 @@ import styles from './favorite-location-list.style';
 
 const FavoriteLocationList = () => {
   const { favoriteLocations } = useSelector(state => state.locationReducer);
+  const { user } = useSelector(state => state.userReducer)
   const dispatch= useDispatch();
   const router = useRouter();
 
@@ -29,8 +33,27 @@ const FavoriteLocationList = () => {
   }
 
   const deleteFavoriteLocation = (id) => {
-    console.log(id);
+    useFetch(deleteFavoriteLocationOptions(id, user.token))
+      .then(response => {
+        if (response.status == 200) {
+          fetchFavoriteLocations(user.token);
+        }
+      })
   }
+
+  const fetchFavoriteLocations = (token) => {
+    useFetch(getFavoriteLocationsOptions(token))
+      .then(response => {
+        if (response.status == 200) {
+          AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
+            .then(() => {
+              dispatch(setLocation(response.data));
+            });
+        }
+      })
+  }
+
+
 
   return (
     <>
