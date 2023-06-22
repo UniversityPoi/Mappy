@@ -15,15 +15,17 @@ export default function Login() {
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
 
 
-  const login = () => { 
+  const login = () => {
+    setIsLoading(true);
+
     useFetch(loginUserOptions(email, password))
     .then(response => {
       if (response.error) {
         var errors = response.error.errors;
-
         if (errors) {
           if (errors.Email) displayMessage(JSON.stringify(errors.Email[0]));
           else if (errors.Password) displayMessage(JSON.stringify(errors.Password[0]));
@@ -43,6 +45,7 @@ export default function Login() {
           setVisible(false);
         }
       }
+      setIsLoading(false);
     });
   }
 
@@ -51,8 +54,7 @@ export default function Login() {
       .then(() => {
         dispatch(setUser(user));
         setVisible(false);
-      })
-      .catch(error => displayMessage(error));
+      });
   }
 
 
@@ -75,7 +77,6 @@ export default function Login() {
   
   return (
     <View>
-
       <TouchableOpacity style={mainStyles.button} onPress={() => setVisible(true)}>
         <Text style={mainStyles.buttonText}>Sign In</Text>
       </TouchableOpacity>
@@ -106,7 +107,7 @@ export default function Login() {
               placeholder='Enter your Password'
               onChangeText={value => setPassword(value)}/>
 
-            <TouchableOpacity style={mainStyles.button} onPress={login}>
+            <TouchableOpacity style={mainStyles.button} onPress={login} disabled={isLoading}>
               <Text style={mainStyles.buttonText}>Sign In</Text>
             </TouchableOpacity>
 

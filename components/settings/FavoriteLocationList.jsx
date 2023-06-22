@@ -18,14 +18,14 @@ import styles from './favorite-location-list.style';
 const FavoriteLocationList = () => {
   const { favoriteLocations } = useSelector(state => state.locationReducer);
   const { user } = useSelector(state => state.userReducer)
-  const dispatch= useDispatch();
+  const dispatch = useDispatch();
   const router = useRouter();
 
-  
+
   const focusLocation = (location) => {
     dispatch(setCamera([
-      <Mapbox.Camera 
-        key={location.id} 
+      <Mapbox.Camera
+        key={location.id}
         centerCoordinate={[location.latitude, location.longitude]}
       />
     ]));
@@ -41,7 +41,7 @@ const FavoriteLocationList = () => {
       })
   }
 
-  
+
   const fetchFavoriteLocations = (token) => {
     useFetch(getFavoriteLocationsOptions(token))
       .then(response => {
@@ -52,23 +52,25 @@ const FavoriteLocationList = () => {
       })
   }
 
-  
+
 
   return (
     <>
       <Text style={[mainStyles.text, styles.container]}>Your Favorite Locations</Text>
       <ScrollView>
-        {favoriteLocations.map((location, index) => (
-          <View key={index} style={styles.itemContainer}>
-            <View style={styles.textContainer}>
-              <Text style={styles.text}>{location.name}</Text>
+        {
+          favoriteLocations && favoriteLocations.map((location, index) => (
+            <View key={index} style={styles.itemContainer}>
+              <View style={styles.textContainer}>
+                <Text style={styles.text}>{location.name}</Text>
+              </View>
+              <TouchableOpacity style={styles.button} onPress={() => { focusLocation(location) }}>
+                <Text style={styles.buttonText}>View</Text>
+              </TouchableOpacity>
+              <ImageButton icon={icons.trash} handlePress={() => { deleteFavoriteLocation(location.id) }} />
             </View>
-            <TouchableOpacity style={styles.button} onPress={() => { focusLocation(location) }}>
-              <Text style={styles.buttonText}>View</Text>
-            </TouchableOpacity>
-            <ImageButton icon={icons.trash} handlePress={deleteFavoriteLocation} data={location.id}/>
-          </View>
-        ))}
+          ))
+        }
       </ScrollView>
     </>
   );

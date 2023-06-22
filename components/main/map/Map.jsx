@@ -1,10 +1,9 @@
-import { Text, View, ToastAndroid } from 'react-native';
-import { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import { View, ToastAndroid } from 'react-native';
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useFetch, addFavoriteLocationsOptions, getFavoriteLocationsOptions, addLocation } from '../../../hooks/useFetch';
 import { setLocation } from "../../../redux/location/locationActions";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Location from 'expo-location';
 import Mapbox from '@rnmapbox/maps';
 import Constants from "expo-constants";
 import NewFavoriteLocation from '../../modal/new-favorite-location/NewFavoriteLocation';
@@ -19,16 +18,15 @@ const UPDATE_DISTANCE = 5;
 
 
 const Map = forwardRef((props, ref) => {
-  const [isPermissionGranted, setPermissionGranted] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({ latitude: 0, longitude: 0 });
-  const [userCamera, setUserCamera] = useState([<Mapbox.Camera key='camera' followUserLocation followZoomLevel={15}/>]);
+  const [userCamera, setUserCamera] = useState([<Mapbox.Camera key='camera' followUserLocation followZoomLevel={15} />]);
   const [newFavoriteMarker, setNewFavoriteMarker] = useState(null);
   const [newFavoriteMarkerLocation, setNewFavoriteMarkerLocation] = useState(null);
   const [shouldShowFavoriteLocationModal, setShouldShowFavoriteLocationModal] = useState(false);
   const { user } = useSelector(state => state.userReducer);
   const { favoriteLocations } = useSelector(state => state.locationReducer);
   const { camera } = useSelector(state => state.cameraReducer);
-  const dispatch= useDispatch();
+  const dispatch = useDispatch();
 
 
 
@@ -38,19 +36,12 @@ const Map = forwardRef((props, ref) => {
   }));
 
 
-  useEffect(() => {
-    Location.requestForegroundPermissionsAsync()
-      .then(status => setPermissionGranted(status.granted))
-      .catch(err => displayMessage(err));
-  },[]);
-
-
   const centerCamera = () => {
     setUserCamera(prev => [
-      ...prev.slice(0, -1), 
-      <Mapbox.Camera 
-        key={Math.random().toString(36).substring(7)} 
-        followUserLocation 
+      ...prev.slice(0, -1),
+      <Mapbox.Camera
+        key={Math.random().toString(36).substring(7)}
+        followUserLocation
         followZoomLevel={15}
       />
     ]);
@@ -62,14 +53,13 @@ const Map = forwardRef((props, ref) => {
       setShouldShowFavoriteLocationModal(true);
       return;
     }
-    
+
     setNewFavoriteMarker(
       <Mapbox.PointAnnotation
         id={Math.random().toString(36).substring(7)}
         coordinate={[currentLocation.longitude, currentLocation.latitude]}
         draggable={true}
         onDragEnd={onFavoriteMarkerDrag}>
-          <Marker/>
       </Mapbox.PointAnnotation>
     );
     setShouldShowFavoriteLocationModal(true);
@@ -79,12 +69,12 @@ const Map = forwardRef((props, ref) => {
 
   const userLocationOnUpdate = (location) => {
     if (user) {
-      useFetch(addLocation({ 
+      useFetch(addLocation({
         longitude: location.coords.longitude,
-        latitude: location.coords.latitude  
+        latitude: location.coords.latitude
       }, user.token));
     }
-    
+
     setCurrentLocation(location.coords);
   }
 
@@ -95,14 +85,14 @@ const Map = forwardRef((props, ref) => {
       return;
     }
 
-    var newLocation = { 
+    var newLocation = {
       name: name,
       coordinates: {
         latitude: newFavoriteMarkerLocation[0],
         longitude: newFavoriteMarkerLocation[1]
       }
     };
-    
+
     if (user) {
       useFetch(addFavoriteLocationsOptions(newLocation, user.token))
         .then(response => {
@@ -155,34 +145,29 @@ const Map = forwardRef((props, ref) => {
 
   return (
     <View style={styles.mapContainer}>
-      {isPermissionGranted ? <>
-        <Mapbox.MapView style={styles.map} scaleBarEnabled={false} compassEnabled>
-          <Mapbox.UserLocation onUpdate={userLocationOnUpdate} minDisplacement={UPDATE_DISTANCE} visible animated/>
-          {userCamera}
-          {camera}
-          {newFavoriteMarker}
+      <Mapbox.MapView style={styles.map} scaleBarEnabled={false} compassEnabled>
+        <Mapbox.UserLocation onUpdate={userLocationOnUpdate} minDisplacement={UPDATE_DISTANCE} visible animated />
+        {userCamera}
+        {camera}
+        {newFavoriteMarker}
 
-          {
-            favoriteLocations.map((marker, _) => (
-              <Mapbox.PointAnnotation
-                key={marker.id}
-                id={marker.id}
-                coordinate={[marker.latitude, marker.longitude]}>
-                  <Marker name={marker.name}/>
-              </Mapbox.PointAnnotation>
-            ))
-          }
+        {
+          favoriteLocations && favoriteLocations.map((marker, _) => (
+            <Marker
+              key={marker.id}
+              name={marker.name}
+              coords={[marker.latitude, marker.longitude]}
+            />
+          ))
+        }
 
-        </Mapbox.MapView>
+      </Mapbox.MapView>
 
-        <NewFavoriteLocation 
-          visible={shouldShowFavoriteLocationModal}
-          onConfirm={onNewFavoriteLocationConfirm}
-          onCancel={onNewFavoriteLocationClose}
-          onHide={onNewFavoriteLocationHide}/>
-
-        </> : <Text>Please allow Location Permission...</Text>
-      }
+      <NewFavoriteLocation
+        visible={shouldShowFavoriteLocationModal}
+        onConfirm={onNewFavoriteLocationConfirm}
+        onCancel={onNewFavoriteLocationClose}
+        onHide={onNewFavoriteLocationHide} />
     </View>
   );
 });

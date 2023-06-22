@@ -18,12 +18,22 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const register = () => {
-    if (!usernameRegex.test(username)) displayMessage('Invalid username!');
-    else if (!emailRegex.test(email)) displayMessage('Invalid email!');
-    else if (password !== confirmPassword) displayMessage('Passwords do not match!');
-    else if (!passwordRegex.test(password)) displayMessage('Password must contain mininum of 8 chars, lower, upper and digit!');
+    setIsLoading(true);
+    var errorMessage = null;
+
+    if (!usernameRegex.test(username)) errorMessage = 'Invalid username!';
+    else if (!emailRegex.test(email)) errorMessage = 'Invalid email!';
+    else if (password !== confirmPassword) errorMessage = 'Passwords do not match!';
+    else if (!passwordRegex.test(password)) 
+      errorMessage = 'Password must contain mininum of 8 chars, lower, upper and digit!';
+
+    if (errorMessage) {
+      displayMessage(errorMessage);
+      setIsLoading(false);
+    }
     else {
       useFetch(registerUserOptions(username, email, password, confirmPassword))
         .then(response => {
@@ -34,6 +44,7 @@ export default function Register() {
             displayMessage(JSON.stringify(response.data.message));
             if (response.status == 200) setVisible(false);
           }
+          setIsLoading(false);
         });
     }
   }
@@ -95,7 +106,7 @@ export default function Register() {
               placeholder='Enter your Password again'
               onChangeText={value => setConfirmPassword(value)}/>
 
-            <TouchableOpacity style={mainStyles.button} onPress={register}>
+            <TouchableOpacity style={mainStyles.button} onPress={register} disabled={isLoading}>
               <Text style={mainStyles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
             

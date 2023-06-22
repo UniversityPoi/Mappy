@@ -1,23 +1,8 @@
 import axios from "axios";
-import * as Network from 'expo-network';
+import { onInternetAccess } from "../modules/network";
 
 const API_URL = 'https://mappy-server.azurewebsites.net';
 
-
-
-const onInternetAccess = async (callback, onError) => {
-  Network.getNetworkStateAsync()
-    .then(state => {
-      if (state.isConnected) {
-        callback();
-      } else {
-        onError('No internet Access!');
-      }
-    })
-    .catch(error => {
-      onError(error);
-    });
-}
 
 
 export const useFetch = async (options) => {
