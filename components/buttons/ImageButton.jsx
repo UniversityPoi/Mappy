@@ -2,18 +2,9 @@ import { Image, TouchableOpacity } from "react-native";
 
 import styles from "./image-button.style";
 
-const ImageButton = ({ icon, handlePress, data }) => {
-  const _handlePress = () => {
-    if (data) {
-      handlePress(data);
-    } else {
-      handlePress();
-    }
-  }
-
-
-  return (
-    <TouchableOpacity style={styles.btnContainer} onPress={_handlePress}>
+const ImageButton = ({ icon, handlePress }) => {
+return (
+    <TouchableOpacity style={styles.btnContainer} onPress={handlePress}>
       <Image
         source={icon}
         resizeMode='cover'

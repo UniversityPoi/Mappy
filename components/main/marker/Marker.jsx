@@ -11,10 +11,7 @@ const Marker = ({ name = "New Location" }) => {
       <View style={styles.textContainer}>
         <Text style={styles.text}>{name}</Text>
       </View>
-      <Image
-        source={icons.marker2}
-        style={styles.markerImage}
-      />
+      <Image source={icons.marker2} style={styles.markerImage}/>
     </View>
   );
 };

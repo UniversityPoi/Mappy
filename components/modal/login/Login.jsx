@@ -15,24 +15,24 @@ export default function Login() {
   const [visible, setVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const dispatch = useDispatch();
 
 
   const login = () => { 
-    // Fetching login user
     useFetch(loginUserOptions(email, password))
     .then(response => {
       if (response.error) {
         var errors = response.error.errors;
 
-        if (errors){
+        if (errors) {
           if (errors.Email) displayMessage(JSON.stringify(errors.Email[0]));
           else if (errors.Password) displayMessage(JSON.stringify(errors.Password[0]));
+        } 
+        else {
+          displayMessage(JSON.stringify(response.error.message));
         }
-        else displayMessage(JSON.stringify(response.error.message));
-
-      } else {
+      } 
+      else {
         displayMessage(JSON.stringify(response.data.message));
         if (response.status == 200) {
           var user = response.data.user;
@@ -52,9 +52,7 @@ export default function Login() {
         dispatch(setUser(user));
         setVisible(false);
       })
-      .catch(error => {
-        displayMessage(error);
-      });
+      .catch(error => displayMessage(error));
   }
 
 
@@ -63,9 +61,7 @@ export default function Login() {
       .then(response => {
         if (response.status == 200) {
           AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
-            .then(() => {
-              dispatch(setLocation(response.data));
-            });
+            .then(() => dispatch(setLocation(response.data)));
         }
       })
   }

@@ -1,17 +1,14 @@
-import { Text, View, SafeAreaView, StatusBar, TextInput, TouchableOpacity, ToastAndroid } from 'react-native';
-import { useState } from 'react';
+import { Text, SafeAreaView, StatusBar, TouchableOpacity, ToastAndroid } from 'react-native';
 import { Stack } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from "../redux/user/userActions";
 import { setLocation } from '../redux/location/locationActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import styles from "../styles/settings-menu.style";
-import mainStyles from '../styles/main.style';
-
 import Register from '../components/modal/register/Register';
 import Login from '../components/modal/login/Login';
 import FavoriteLocationList from '../components/settings/FavoriteLocationList';
+
+import mainStyles from '../styles/main.style';
 
 
 
@@ -19,26 +16,23 @@ export default function SettingsMenu() {
   const { user } = useSelector(state => state.userReducer);
   const dispatch = useDispatch();
 
+
   const logout = () => {
     AsyncStorage.removeItem('user')
-      .then(() => {
-        dispatch(setUser(null));
-      })
-      .catch(error => {
-        ToastAndroid.showWithGravity(JSON.stringify(error), ToastAndroid.LONG, ToastAndroid.TOP);
-        console.log(error)
-      });
+      .then(() => dispatch(setUser(null)))
+      .catch(error => displayMessage(JSON.stringify(error)));
     
     AsyncStorage.removeItem('favoriteLocations')
-    .then(() => {
-      dispatch(setLocation([]));
-    })
-    .catch(error => {
-      ToastAndroid.showWithGravity(JSON.stringify(error), ToastAndroid.LONG, ToastAndroid.TOP);
-      console.log(error)
-    });
+      .then(() => dispatch(setLocation([])))
+      .catch(error => displayMessage(JSON.stringify(error)));
   }
 
+
+  const displayMessage = message => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
+  }
+
+  
   return (
     <SafeAreaView style={mainStyles.safeArea}>
       <StatusBar hidden={false}></StatusBar>

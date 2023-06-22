@@ -25,41 +25,37 @@ const Map = forwardRef((props, ref) => {
   const [newFavoriteMarker, setNewFavoriteMarker] = useState(null);
   const [newFavoriteMarkerLocation, setNewFavoriteMarkerLocation] = useState(null);
   const [shouldShowFavoriteLocationModal, setShouldShowFavoriteLocationModal] = useState(false);
-
-  const dispatch= useDispatch();
-
   const { user } = useSelector(state => state.userReducer);
   const { favoriteLocations } = useSelector(state => state.locationReducer);
   const { camera } = useSelector(state => state.cameraReducer);
-  
+  const dispatch= useDispatch();
 
-  
+
+
   useImperativeHandle(ref, () => ({
     _centerCamera() { centerCamera() },
     _setNewFavorite() { createNewFavoriteMarker() }
   }));
-  
+
 
   useEffect(() => {
     Location.requestForegroundPermissionsAsync()
-      .then(status => {
-        setPermissionGranted(status.granted);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+      .then(status => setPermissionGranted(status.granted))
+      .catch(err => displayMessage(err));
   },[]);
 
+
   const centerCamera = () => {
-    setUserCamera(prev=> 
-      [...prev.slice(0, -1), 
-        <Mapbox.Camera 
-          key={Math.random().toString(36).substring(7)} 
-          followUserLocation 
-          followZoomLevel={15}
-        />
-      ]);
+    setUserCamera(prev => [
+      ...prev.slice(0, -1), 
+      <Mapbox.Camera 
+        key={Math.random().toString(36).substring(7)} 
+        followUserLocation 
+        followZoomLevel={15}
+      />
+    ]);
   }
+
 
   const createNewFavoriteMarker = () => {
     if (newFavoriteMarker != null) {
@@ -80,68 +76,77 @@ const Map = forwardRef((props, ref) => {
     setNewFavoriteMarkerLocation([currentLocation.longitude, currentLocation.latitude]);
   }
 
+
   const userLocationOnUpdate = (location) => {
-    useFetch(addLocation({ 
-      longitude: location.coords.longitude,
-      latitude: location.coords.latitude  
-    }, user.token));
+    if (user) {
+      useFetch(addLocation({ 
+        longitude: location.coords.longitude,
+        latitude: location.coords.latitude  
+      }, user.token));
+    }
     
     setCurrentLocation(location.coords);
   }
 
-  const onNewFavoriteLocationConfirm = (markerName) => {
-    if (markerName.length < 3 || markerName.length > 20) {
+
+  const onNewFavoriteLocationConfirm = (name) => {
+    if (name.length < 3 || name.length > 20) {
       displayMessage("Location name must be between 3 and 20 characters!");
       return;
     }
 
-    var newMarker = { 
-      name: markerName,
+    var newLocation = { 
+      name: name,
       coordinates: {
         latitude: newFavoriteMarkerLocation[0],
         longitude: newFavoriteMarkerLocation[1]
       }
     };
     
-    useFetch(addFavoriteLocationsOptions(newMarker, user.token))
-      .then(response => {
-        if (response.error) {
-          displayMessage(JSON.stringify(response.error.message));
-        } else {
-          if (response.status == 200) {
-            displayMessage(`Added ${markerName}!`);
-            fetchFavoriteLocations(user.token);
+    if (user) {
+      useFetch(addFavoriteLocationsOptions(newLocation, user.token))
+        .then(response => {
+          if (response.error) {
+            displayMessage(JSON.stringify(response.error.message));
+          } else {
+            if (response.status == 200) {
+              displayMessage(`Added ${name}!`);
+              fetchFavoriteLocations(user.token);
+            }
           }
-        }
-      });
+        });
+    }
 
     onNewFavoriteLocationClose();
   }
+
 
   const fetchFavoriteLocations = (token) => {
     useFetch(getFavoriteLocationsOptions(token))
       .then(response => {
         if (response.status == 200) {
           AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
-            .then(() => {
-              dispatch(setLocation(response.data));
-            });
+            .then(() => dispatch(setLocation(response.data)));
         }
       })
   }
+
 
   const onNewFavoriteLocationClose = () => {
     setNewFavoriteMarker(null);
     setShouldShowFavoriteLocationModal(false);
   }
 
+
   const onNewFavoriteLocationHide = () => {
     setShouldShowFavoriteLocationModal(false);
   }
 
+
   const onFavoriteMarkerDrag = (value) => {
     setNewFavoriteMarkerLocation(value.geometry.coordinates);
   }
+
 
   const displayMessage = message => {
     ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);

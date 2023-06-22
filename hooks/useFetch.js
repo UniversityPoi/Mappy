@@ -1,22 +1,50 @@
 import axios from "axios";
+import * as Network from 'expo-network';
 
 const API_URL = 'https://mappy-server.azurewebsites.net';
 
+
+
+const onInternetAccess = async (callback, onError) => {
+  Network.getNetworkStateAsync()
+    .then(state => {
+      if (state.isConnected) {
+        callback();
+      } else {
+        onError('No internet Access!');
+      }
+    })
+    .catch(error => {
+      onError(error);
+    });
+}
+
+
 export const useFetch = async (options) => {
-  let data = null;
-  let error = null;
-  let status = null;
+  return new Promise((resolve, reject) => {
+    let data = null;
+    let error = null;
+    let status = null;
 
-  try {
-    const response = await axios.request(options);
-    
-    status = response.status;
-    data = response.data;
-  } catch (err) {
-    error = err.response.data;
-  }
-
-  return { data, error, status };
+    onInternetAccess(
+      () => {
+        axios.request(options)
+          .then(response => {
+            status = response.status;
+            data = response.data;
+            resolve({ data, error, status });
+          })
+          .catch(err => {
+            error = err.response.data;
+            resolve({ data, error, status });
+          });
+      },
+      (err) => {
+        error = err;
+        resolve({ data, error, status });
+      }
+    );
+  });
 };
 
 export const registerUserOptions = (username, email, password, confirmPassword) => {

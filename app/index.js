@@ -1,35 +1,30 @@
-import { Text, View, ScrollView, SafeAreaView, StatusBar } from 'react-native';
+import { View, SafeAreaView, StatusBar, ToastAndroid } from 'react-native';
+import { useEffect, useRef } from "react";
 import { Stack, useRouter } from 'expo-router';
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/user/userActions";
 import { setLocation } from "../redux/location/locationActions";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ToastAndroid } from "react-native";
-import { useEffect, useRef } from "react";
-
 import { useFetch, getFavoriteLocationsOptions } from '../hooks/useFetch';
-
-import icons from '../constants/icons';
-import styles from '../styles/index.style';
-import mainStyles from '../styles/main.style';
-
 import Map from '../components/main/map/Map';
 import ImageButton from '../components/buttons/ImageButton';
+
+import icons from '../constants/icons';
+import mainStyles from '../styles/main.style';
 
 
 
 const Home = () => {
   const mapRef = useRef();
-
   const router = useRouter();
   const dispatch= useDispatch();
+
 
   useEffect(() => {
     AsyncStorage.getItem('user')
       .then(user => {
         if (user !== null) {
           var userObj = JSON.parse(user);
-
           dispatch(setUser(userObj));
           fetchFavoriteLocations(userObj.token);
         }
@@ -42,9 +37,11 @@ const Home = () => {
       .then(response => {
         if (response.status == 200) {
           AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
-            .then(() => {
-              dispatch(setLocation(response.data));
-            });
+            .then(() => dispatch(setLocation(response.data)));
+        } else {
+          AsyncStorage.getItem('favoriteLocations')
+            .then(locations => dispatch(setLocation(locations)));
+          ToastAndroid.showWithGravity(response.error, ToastAndroid.LONG, ToastAndroid.TOP);
         }
       })
   }

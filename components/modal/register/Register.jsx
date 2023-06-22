@@ -25,19 +25,16 @@ export default function Register() {
     else if (password !== confirmPassword) displayMessage('Passwords do not match!');
     else if (!passwordRegex.test(password)) displayMessage('Password must contain mininum of 8 chars, lower, upper and digit!');
     else {
-      // Fetching register user
-      useFetch(registerUserOptions(
-        username, email, password, confirmPassword
-      )).then(response => {
-        if (response.error != null) {
-          displayMessage(JSON.stringify(response.error.message));
-        } else {
-          displayMessage(JSON.stringify(response.data.message));
-          if (response.status == 200) {
-            setVisible(false);
+      useFetch(registerUserOptions(username, email, password, confirmPassword))
+        .then(response => {
+          if (response.error) {
+            if (!response.error.errors) displayMessage(JSON.stringify(response.error.message));
+          } 
+          else {
+            displayMessage(JSON.stringify(response.data.message));
+            if (response.status == 200) setVisible(false);
           }
-        }
-      });
+        });
     }
   }
 
