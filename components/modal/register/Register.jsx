@@ -38,10 +38,8 @@ export default function Register() {
     else {
       useFetch(registerUserOptions(username, email, password, confirmPassword))
         .then(_ => setVisible(false))
-        .catch(error => {
-          displayMessage(JSON.stringify(error));
-          setIsLoading(false);
-        });
+        .catch(error => displayMessage(error))
+        .finally(() => setIsLoading(false));;
     }
   }
 

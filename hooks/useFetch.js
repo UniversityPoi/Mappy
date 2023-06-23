@@ -15,7 +15,10 @@ export const useFetch = (options) => {
             else reject(response.data?.message);
           })
           .catch(err => {
+            let message = err?.response?.data?.message;
             let errors = err?.response?.data?.errors;
+
+            if (message) reject(message);
             if (errors) reject(errors[Object.keys(errors)[0]][0]);
             else reject("Unexpected error...");
           });

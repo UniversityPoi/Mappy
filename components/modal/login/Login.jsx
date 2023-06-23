@@ -30,9 +30,9 @@ export default function Login() {
         storeUser(user);
         fetchFavoriteLocations(user.token);
         setVisible(false);
-        setIsLoading(false);
       })
-      .catch(error => displayMessage(error));
+      .catch(error => displayMessage(error))
+      .finally(() => setIsLoading(false));
   }
 
   const storeUser = user => {
