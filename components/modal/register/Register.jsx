@@ -1,4 +1,4 @@
-import { View, Text, Modal, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
+import { View, ScrollView, Text, Modal, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
 import React, { useState } from 'react';
 import { useFetch, registerUserOptions } from '../../../hooks/useFetch';
 
@@ -20,6 +20,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+
   const register = () => {
     setIsLoading(true);
     var errorMessage = null;
@@ -36,26 +37,23 @@ export default function Register() {
     }
     else {
       useFetch(registerUserOptions(username, email, password, confirmPassword))
-        .then(response => {
-          if (response.error) {
-            if (!response.error.errors) displayMessage(JSON.stringify(response.error.message));
-          } 
-          else {
-            displayMessage(JSON.stringify(response.data.message));
-            if (response.status == 200) setVisible(false);
-          }
+        .then(_ => setVisible(false))
+        .catch(error => {
+          displayMessage(JSON.stringify(error));
           setIsLoading(false);
         });
     }
   }
 
+
   const displayMessage = message => {
     ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
   }
 
+
+  
   return (
     <View>
-
       <TouchableOpacity style={mainStyles.button} onPress={() => setVisible(true)}>
         <Text style={mainStyles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
@@ -65,8 +63,8 @@ export default function Register() {
         visible={visible}
         transparent={true}>
         <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-
+          <ScrollView>      
+          <View style={styles.modalView}> 
             <Text style={mainStyles.text}>Username</Text>
             <TextInput style={mainStyles.inputText}
               numberOfLines={1}
@@ -114,6 +112,7 @@ export default function Register() {
               <Text style={mainStyles.buttonText}>Close</Text>
             </TouchableOpacity>
           </View>
+          </ScrollView>
         </View>
       </Modal>
     </View>

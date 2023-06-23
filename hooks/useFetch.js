@@ -5,32 +5,25 @@ const API_URL = 'https://mappy-server.azurewebsites.net';
 
 
 
-export const useFetch = async (options) => {
+export const useFetch = (options) => {
   return new Promise((resolve, reject) => {
-    let data = null;
-    let error = null;
-    let status = null;
-
-    onInternetAccess(
-      () => {
+    onInternetAccess()
+      .then(() => {
         axios.request(options)
           .then(response => {
-            status = response.status;
-            data = response.data;
-            resolve({ data, error, status });
+            if (response.status == 200) resolve(response.data);
+            else reject(response.data?.message);
           })
           .catch(err => {
-            error = err.response.data;
-            resolve({ data, error, status });
+            let errors = err?.response?.data?.errors;
+            if (errors) reject(errors[Object.keys(errors)[0]][0]);
+            else reject("Unexpected error...");
           });
-      },
-      (err) => {
-        error = err;
-        resolve({ data, error, status });
-      }
-    );
+      })
+      .catch(err => reject(err));
   });
 };
+
 
 export const registerUserOptions = (username, email, password, confirmPassword) => {
   return {

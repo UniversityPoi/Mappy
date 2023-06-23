@@ -36,7 +36,7 @@ const mainStyles = StyleSheet.create({
     marginTop: 20,
   },
   inputText: {
-    width: '80%',
+    maxWidth: '80%',
     height: 40,
     borderRadius: 8,
     borderColor: '#FF5A5F',

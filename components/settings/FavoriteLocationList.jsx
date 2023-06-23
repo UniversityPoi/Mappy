@@ -25,7 +25,7 @@ const FavoriteLocationList = () => {
   const focusLocation = (location) => {
     dispatch(setCamera([
       <Mapbox.Camera
-        key={location.id}
+        key={Math.random().toString(36).substring(7)}
         centerCoordinate={[location.latitude, location.longitude]}
       />
     ]));
@@ -36,19 +36,15 @@ const FavoriteLocationList = () => {
 
   const deleteFavoriteLocation = (id) => {
     useFetch(deleteFavoriteLocationOptions(id, user.token))
-      .then(response => {
-        if (response.status == 200) fetchFavoriteLocations(user.token);
-      })
+      .then(_ => fetchFavoriteLocations(user.token))
   }
 
 
   const fetchFavoriteLocations = (token) => {
     useFetch(getFavoriteLocationsOptions(token))
-      .then(response => {
-        if (response.status == 200) {
-          AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
-            .then(() => dispatch(setLocation(response.data)));
-        }
+      .then(data => {
+        AsyncStorage.setItem('favoriteLocations', JSON.stringify(data))
+          .then(() => dispatch(setLocation(data)));
       })
   }
 

@@ -37,8 +37,7 @@ const Map = forwardRef((props, ref) => {
 
 
   const centerCamera = () => {
-    setUserCamera(prev => [
-      ...prev.slice(0, -1),
+    setUserCamera([
       <Mapbox.Camera
         key={Math.random().toString(36).substring(7)}
         followUserLocation
@@ -95,15 +94,12 @@ const Map = forwardRef((props, ref) => {
 
     if (user) {
       useFetch(addFavoriteLocationsOptions(newLocation, user.token))
-        .then(response => {
-          if (response.error) {
-            displayMessage(JSON.stringify(response.error.message));
-          } else {
-            if (response.status == 200) {
-              displayMessage(`Added ${name}!`);
-              fetchFavoriteLocations(user.token);
-            }
-          }
+        .then(_ => {
+          displayMessage(`Added ${name}!`);
+          fetchFavoriteLocations(user.token);
+        })
+        .catch(error => {
+          displayMessage(error);
         });
     }
 
@@ -113,11 +109,9 @@ const Map = forwardRef((props, ref) => {
 
   const fetchFavoriteLocations = (token) => {
     useFetch(getFavoriteLocationsOptions(token))
-      .then(response => {
-        if (response.status == 200) {
-          AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
-            .then(() => dispatch(setLocation(response.data)));
-        }
+      .then(data => {
+        AsyncStorage.setItem('favoriteLocations', JSON.stringify(data))
+          .then(() => dispatch(setLocation(data)));
       })
   }
 

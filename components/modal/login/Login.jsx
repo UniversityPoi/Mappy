@@ -1,4 +1,4 @@
-import { View, Text, Modal, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
+import { View, ScrollView, Text, Modal, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/user/userActions';
@@ -23,30 +23,16 @@ export default function Login() {
     setIsLoading(true);
 
     useFetch(loginUserOptions(email, password))
-    .then(response => {
-      if (response.error) {
-        var errors = response.error.errors;
-        if (errors) {
-          if (errors.Email) displayMessage(JSON.stringify(errors.Email[0]));
-          else if (errors.Password) displayMessage(JSON.stringify(errors.Password[0]));
-        } 
-        else {
-          displayMessage(JSON.stringify(response.error.message));
-        }
-      } 
-      else {
-        displayMessage(JSON.stringify(response.data.message));
-        if (response.status == 200) {
-          var user = response.data.user;
-          user.token = response.data.token;
+      .then(data => {
+        var user = data.user;
+        user.token = data.token;
 
-          storeUser(user);
-          fetchFavoriteLocations(user.token);
-          setVisible(false);
-        }
-      }
-      setIsLoading(false);
-    });
+        storeUser(user);
+        fetchFavoriteLocations(user.token);
+        setVisible(false);
+        setIsLoading(false);
+      })
+      .catch(error => displayMessage(error));
   }
 
   const storeUser = user => {
@@ -74,7 +60,7 @@ export default function Login() {
   }
 
 
-  
+
   return (
     <View>
       <TouchableOpacity style={mainStyles.button} onPress={() => setVisible(true)}>
@@ -84,38 +70,39 @@ export default function Login() {
       <Modal
         animationType='slide'
         visible={visible}
-        transparent={true}>
+        transparent>
         <View style={styles.centeredView}>
-          <View style={styles.modalView}>
+          <ScrollView>
+            <View style={styles.modalView}>
+              <Text style={mainStyles.text}>Email</Text>
+              <TextInput style={mainStyles.inputText}
+                maxLength={100}
+                inputMode='email'
+                textAlign='center'
+                textContentType='emailAddress'
+                placeholder='Enter your Email'
+                onChangeText={value => setEmail(value)} />
 
-            <Text style={mainStyles.text}>Email</Text>
-            <TextInput style={mainStyles.inputText}
-              maxLength={100}
-              inputMode='email'
-              textAlign='center'
-              textContentType='emailAddress'
-              placeholder='Enter your Email'
-              onChangeText={value => setEmail(value)}/>
+              <Text style={mainStyles.text}>Password</Text>
+              <TextInput style={mainStyles.inputText}
+                maxLength={256}
+                textAlign='center'
+                secureTextEntry={true}
+                textContentType='password'
+                passwordRules="required: upper; required: lower; required: digit; max-consecutive: 2; minlength: 8;"
+                placeholder='Enter your Password'
+                onChangeText={value => setPassword(value)} />
 
-            <Text style={mainStyles.text}>Password</Text>
-            <TextInput style={mainStyles.inputText}
-              maxLength={256}
-              textAlign='center'
-              secureTextEntry={true}
-              textContentType='password'
-              passwordRules="required: upper; required: lower; required: digit; max-consecutive: 2; minlength: 8;"
-              placeholder='Enter your Password'
-              onChangeText={value => setPassword(value)}/>
+              <TouchableOpacity style={mainStyles.button} onPress={login} disabled={isLoading}>
+                <Text style={mainStyles.buttonText}>Sign In</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={mainStyles.button} onPress={login} disabled={isLoading}>
-              <Text style={mainStyles.buttonText}>Sign In</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={mainStyles.button} onPress={() => setVisible(false)}>
-              <Text style={mainStyles.buttonText}>Close</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={mainStyles.button} onPress={() => setVisible(false)}>
+                <Text style={mainStyles.buttonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+            </ScrollView>
           </View>
-        </View>
       </Modal>
     </View>
   )

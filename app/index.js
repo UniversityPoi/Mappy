@@ -29,7 +29,8 @@ const Home = () => {
       .then(status => setLocationPermissionGranted(status.granted))
       .catch(err => displayMessage(err));
 
-    onInternetAccess(() => setIsOnline(true), (_) => {});
+    onInternetAccess()
+      .then(() => setIsOnline(true));
 
     AsyncStorage.getItem('user')
       .then(user => {
@@ -44,16 +45,20 @@ const Home = () => {
 
   const fetchFavoriteLocations = (token) => {
     useFetch(getFavoriteLocationsOptions(token))
-      .then(response => {
-        if (response.status == 200) {
-          AsyncStorage.setItem('favoriteLocations', JSON.stringify(response.data))
-            .then(() => dispatch(setLocation(response.data)));
-        } else {
-          AsyncStorage.getItem('favoriteLocations')
-            .then(locations => dispatch(setLocation(locations)));
-          ToastAndroid.showWithGravity(response.error, ToastAndroid.LONG, ToastAndroid.TOP);
-        }
+      .then(data => {
+        AsyncStorage.setItem('favoriteLocations', JSON.stringify(data))
+          .then(() => dispatch(setLocation(data)));
       })
+      .catch(error => {
+        AsyncStorage.getItem('favoriteLocations')
+          .then(locations => dispatch(setLocation(locations)));
+        displayMessage(error);
+      })
+  }
+
+
+  const displayMessage = message => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
   }
 
 

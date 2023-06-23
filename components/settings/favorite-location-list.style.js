@@ -15,13 +15,12 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-    marginRight: 16,
   },
   text: {
     color: '#FF5A5F',
     fontSize: 20,
     fontWeight: 'bold',
-    marginTop: 20,
+    verticalAlign: "middle"
   },
   button: {
     backgroundColor: '#FF5A5F',
